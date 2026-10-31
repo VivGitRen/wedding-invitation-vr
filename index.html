@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vivek weds Mahi — Royal Wedding Invitation</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Cormorant Garamond, Cinzel Decorative, Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: {
+              50: '#FDFBF7',
+              100: '#FBF7F0',
+              200: '#F6EFE3',
+              300: '#EDE0CC',
+            },
+            royal: {
+              gold: '#D4AF37',
+              'gold-light': '#F3E5AB',
+              'gold-dark': '#996515',
+              maroon: '#68131D',
+              'maroon-dark': '#480B12',
+              emerald: '#124135',
+              sand: '#DFD3C3'
+            }
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'serif'],
+            display: ['"Cinzel Decorative"', 'serif'],
+            sans: ['"Montserrat"', 'sans-serif'],
+          },
+          boxShadow: {
+            'gold-glow': '0 0 25px rgba(212, 175, 55, 0.35)',
+            'royal': '0 10px 40px -10px rgba(72, 11, 18, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Gold Gradients & Foiling */
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #ECC875 0%, #B8860B 35%, #FBF0B9 60%, #AA771C 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gold-border-gradient {
+      border-image: linear-gradient(135deg, #ECC875, #B8860B, #FBF0B9, #996515) 1;
+    }
+    .royal-border {
+      position: relative;
+    }
+    .royal-border::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      pointer-events: none;
+    }
+
+    /* Ambient floating petals background canvas */
+    #petalCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 25;
+    }
+
+    /* Wax seal button pulsing effect */
+    @keyframes sealPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(104, 19, 29, 0.6); }
+      50% { transform: scale(1.05); box-shadow: 0 0 35px rgba(212, 175, 55, 0.7); }
+    }
+    .seal-animate {
+      animation: sealPulse 2.8s ease-in-out infinite;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F6EFE3;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D4AF37;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #996515;
+    }
+  </style>
+</head>
+<body class="bg-cream-100 text-royal-maroon-dark font-sans selection:bg-royal-gold/30 selection:text-royal-maroon overflow-x-hidden min-h-screen relative">
+
+  <!-- Interactive Petals & Sparkle Canvas -->
+  <canvas id="petalCanvas"></canvas>
+
+  <!-- Floating Audio & Navigation Bar -->
+  <div class="fixed top-4 right-4 z-40 flex items-center space-x-2">
+    <!-- Ambient Indian Instrumental Music Synthesizer Player -->
+    <button id="musicToggleBtn" onclick="toggleAudio()" class="group relative flex items-center gap-2 bg-cream-50/90 backdrop-blur-md border border-royal-gold/40 text-royal-maroon px-3 py-2 rounded-full shadow-lg hover:shadow-gold-glow transition-all duration-300">
+      <span id="musicIconWrapper" class="text-royal-gold">
+        <i data-lucide="volume-x" class="w-4 h-4"></i>
+      </span>
+      <span id="musicText" class="text-xs uppercase tracking-widest font-serif font-semibold pr-1">Music: Off</span>
+      <!-- Soundwave animation indicator -->
+      <span id="soundBars" class="hidden flex items-end gap-[2px] h-3">
+        <span class="w-[2px] h-full bg-royal-gold animate-bounce"></span>
+        <span class="w-[2px] h-2 bg-royal-gold animate-pulse"></span>
+        <span class="w-[2px] h-3 bg-royal-gold animate-bounce" style="animation-delay: 0.15s"></span>
+      </span>
+    </button>
+  </div>
+
+  <!-- INTRO: WAX SEAL ENVELOPE OPENING OVERLAY -->
+  <div id="envelopeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-cream-200/95 backdrop-blur-md p-4 transition-all duration-1000 ease-in-out">
+    <div id="envelopeCard" class="relative w-full max-w-lg bg-gradient-to-b from-cream-50 to-cream-200 border-2 border-royal-gold/60 p-8 sm:p-12 text-center rounded-2xl shadow-2xl shadow-royal-maroon/20 overflow-hidden transform transition-all duration-700">
+      
+      <!-- Ornamental corners -->
+      <div class="absolute top-2 left-2 text-royal-gold text-xl select-none">❖</div>
+      <div class="absolute top-2 right-2 text-royal-gold text-xl select-none">❖</div>
+      <div class="absolute bottom-2 left-2 text-royal-gold text-xl select-none">❖</div>
+      <div class="absolute bottom-2 right-2 text-royal-gold text-xl select-none">❖</div>
+
+      <!-- Traditional Shloka -->
+      <div class="text-royal-gold-dark font-serif text-base tracking-widest mb-3 font-semibold">
+        ॥ శ్రీ గణేశాయ నమః ॥
+      </div>
+
+      <div class="text-xs uppercase tracking-[0.3em] text-royal-maroon/70 font-semibold mb-2">
+        You are cordially invited to celebrate
+      </div>
+
+      <h2 class="font-display text-2xl sm:text-3xl text-royal-maroon mb-1">The Wedding Of</h2>
+      <h1 class="font-serif italic text-4xl sm:text-5xl text-royal-gold-dark font-normal my-2">
+        Vivek <span class="text-royal-maroon font-serif">&amp;</span> Mahi
+      </h1>
+
+      <p class="text-sm font-serif italic text-royal-maroon/80 mb-8 max-w-xs mx-auto">
+        Together with their families, invite you to share in the joy of their new beginning.
+      </p>
+
+      <!-- Royal Wax Seal Button -->
+      <div class="relative inline-block my-2">
+        <button id="openInvitationBtn" onclick="openEnvelope()" class="seal-animate group relative w-24 h-24 rounded-full bg-gradient-to-br from-[#8C1D2F] via-[#68131D] to-[#3B070D] border-4 border-royal-gold flex flex-col items-center justify-center text-royal-gold shadow-2xl focus:outline-none cursor-pointer transition-transform duration-300">
+          <span class="font-display text-xl tracking-wider font-bold">V &amp; M</span>
+          <span class="text-[9px] uppercase tracking-widest text-royal-gold-light mt-0.5">Open</span>
+        </button>
+      </div>
+
+      <p class="text-xs text-royal-gold-dark/80 tracking-widest uppercase mt-4 animate-pulse">
+        Tap the royal seal to open invitation
+      </p>
+    </div>
+  </div>
+
+  <!-- MAIN INVITATION CONTENT -->
+  <main class="w-full">
+
+    <!-- HERO SECTION -->
+    <header class="relative min-h-screen flex flex-col items-center justify-center text-center px-4 py-16 overflow-hidden">
+      <!-- Background Mandalas -->
+      <div class="absolute -top-32 -left-32 w-96 h-96 opacity-10 pointer-events-none rounded-full border-[16px] border-royal-gold"></div>
+      <div class="absolute -bottom-32 -right-32 w-96 h-96 opacity-10 pointer-events-none rounded-full border-[16px] border-royal-gold"></div>
+
+      <!-- Sanskrit / Telugu Invocation -->
+      <div class="space-y-1 mb-4">
+        <p class="text-royal-gold-dark text-base sm:text-lg font-serif tracking-widest font-semibold">॥ శ్రీ గణేశాయ నమః ॥</p>
+        <p class="text-xs uppercase tracking-[0.25em] text-royal-maroon/70">With the divine blessings of our elders &amp; families</p>
+      </div>
+
+      <!-- Royal Crest / Monogram -->
+      <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-royal-gold p-2 mx-auto mb-6 flex items-center justify-center relative shadow-gold-glow bg-cream-50/50">
+        <div class="w-full h-full rounded-full border border-dashed border-royal-gold flex items-center justify-center">
+          <span class="font-display text-2xl sm:text-3xl gold-gradient-text tracking-widest font-bold">V &amp; M</span>
+        </div>
+      </div>
+
+      <!-- Couple Names -->
+      <div class="space-y-2 max-w-3xl mx-auto">
+        <h1 class="font-serif text-5xl sm:text-7xl lg:text-8xl text-royal-maroon font-normal tracking-wide">
+          Vivek
+        </h1>
+        <div class="flex items-center justify-center gap-4 my-2">
+          <span class="h-[1px] w-12 sm:w-20 bg-royal-gold"></span>
+          <span class="font-serif italic text-2xl sm:text-3xl text-royal-gold-dark font-light">weds</span>
+          <span class="h-[1px] w-12 sm:w-20 bg-royal-gold"></span>
+        </div>
+        <h1 class="font-serif text-5xl sm:text-7xl lg:text-8xl text-royal-maroon font-normal tracking-wide">
+          Mahi
+        </h1>
+      </div>
+
+      <!-- Date & Destination -->
+      <div class="mt-8 space-y-1">
+        <p class="font-serif text-xl sm:text-2xl text-royal-maroon tracking-wider">
+          Wednesday, 25<sup class="text-xs">th</sup> November 2026
+        </p>
+        <p class="text-sm uppercase tracking-[0.22em] text-royal-gold-dark font-medium flex items-center justify-center gap-1.5">
+          <i data-lucide="map-pin" class="w-4 h-4"></i> BRK Gardens &bull; Rajamahendravaram, India
+        </p>
+      </div>
+
+      <!-- LIVE COUNTDOWN TIMER -->
+      <div class="mt-10 w-full max-w-xl mx-auto bg-cream-50/80 backdrop-blur-sm border border-royal-gold/40 rounded-2xl p-5 sm:p-6 shadow-royal">
+        <p class="text-xs uppercase tracking-[0.2em] text-royal-maroon font-semibold mb-4 text-center">Counting Moments Until Sumuhurtham (09:32 PM IST)</p>
+        <div class="grid grid-cols-4 gap-2 sm:gap-4 text-center">
+          <div class="bg-cream-200/60 rounded-xl p-2 sm:p-3 border border-royal-gold/20">
+            <span id="days" class="block font-serif text-2xl sm:text-4xl text-royal-maroon font-bold">00</span>
+            <span class="text-[10px] sm:text-xs uppercase tracking-wider text-royal-maroon/70">Days</span>
+          </div>
+          <div class="bg-cream-200/60 rounded-xl p-2 sm:p-3 border border-royal-gold/20">
+            <span id="hours" class="block font-serif text-2xl sm:text-4xl text-royal-maroon font-bold">00</span>
+            <span class="text-[10px] sm:text-xs uppercase tracking-wider text-royal-maroon/70">Hours</span>
+          </div>
+          <div class="bg-cream-200/60 rounded-xl p-2 sm:p-3 border border-royal-gold/20">
+            <span id="minutes" class="block font-serif text-2xl sm:text-4xl text-royal-maroon font-bold">00</span>
+            <span class="text-[10px] sm:text-xs uppercase tracking-wider text-royal-maroon/70">Minutes</span>
+          </div>
+          <div class="bg-cream-200/60 rounded-xl p-2 sm:p-3 border border-royal-gold/20">
+            <span id="seconds" class="block font-serif text-2xl sm:text-4xl text-royal-gold-dark font-bold">00</span>
+            <span class="text-[10px] sm:text-xs uppercase tracking-wider text-royal-maroon/70">Seconds</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <button onclick="scrollToSection('itinerary')" class="px-6 py-3 rounded-full bg-royal-maroon text-cream-50 hover:bg-royal-maroon-dark transition-all duration-300 font-serif text-sm tracking-wider uppercase shadow-md flex items-center gap-2">
+          <span>View Celebrations</span>
+          <i data-lucide="chevron-down" class="w-4 h-4"></i>
+        </button>
+        <button onclick="openRsvpModal()" class="px-6 py-3 rounded-full border-2 border-royal-gold bg-cream-50/70 hover:bg-royal-gold hover:text-white transition-all duration-300 font-serif text-sm tracking-wider uppercase text-royal-maroon font-semibold shadow-md flex items-center gap-2">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span>Send RSVP</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- SECTION: WEDDING EVENTS & ITINERARY -->
+    <section id="itinerary" class="py-16 px-4 bg-cream-200/50">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+          <span class="text-xs uppercase tracking-[0.25em] text-royal-gold-dark font-semibold">Festivities of Love</span>
+          <h2 class="font-serif text-4xl sm:text-5xl text-royal-maroon mt-1">Wedding Itinerary</h2>
+          <p class="text-sm text-royal-maroon/70 mt-2 font-serif italic">Join us across every sacred ritual and joyful celebration.</p>
+          <div class="w-16 h-0.5 bg-royal-gold mx-auto mt-3"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+          
+          <!-- Event 1: Haldi & Pelli Koduku -->
+          <div class="bg-cream-50 rounded-2xl border border-royal-gold/30 p-6 sm:p-8 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-28 h-28 bg-amber-100/50 rounded-bl-full pointer-events-none -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300">
+                  Day 1 &bull; Morning Ceremony
+                </span>
+                <span class="text-xs text-royal-maroon/70 font-semibold">Nov 22, 2026</span>
+              </div>
+              <h3 class="font-serif text-2xl sm:text-3xl text-royal-maroon mb-2">Haldi &amp; Pelli Koduku</h3>
+              <p class="text-sm text-royal-maroon/80 leading-relaxed mb-4">
+                The traditional Telugu ceremony preparing the groom with auspicious Nalugu, sacred turmeric paste, holy water blessings (Mangala Snanam), and heartfelt family love.
+              </p>
+              
+              <div class="space-y-2 text-xs sm:text-sm text-royal-maroon/90 border-t border-royal-gold/20 pt-4">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="clock" class="w-4 h-4 text-royal-gold-dark"></i>
+                  <span>07:00 AM onwards</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i data-lucide="shirt" class="w-4 h-4 text-royal-gold-dark"></i>
+                  <span>Dress Code: Festive Shades of Blue &amp; Brown</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i data-lucide="home" class="w-4 h-4 text-royal-gold-dark"></i>
+                  <span>Groom's Home</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-6 flex items-center justify-between pt-4 border-t border-royal-gold/15">
+              <button onclick="addToCalendar('Haldi & Pelli Koduku', '2026-11-22T07:00:00', '2026-11-22T11:00:00', 'Groom\'s Home', 'Traditional Telugu Haldi and Pelli Koduku ritual for Vivek')" class="text-xs font-serif uppercase tracking-wider text-royal-gold-dark hover:text-royal-maroon flex items-center gap-1">
+                <i data-lucide="calendar-plus" class="w-4 h-4"></i> Add to Calendar
+              </button>
+            </div>
+          </div>
+
+          <!-- Event 2: Sumuhurtham (Main Auspicious Wedding Ceremony) -->
+          <div class="bg-cream-50 rounded-2xl border-2 border-royal-gold p-6 sm:p-8 shadow-royal hover:shadow-2xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-28 h-28 bg-royal-gold/15 rounded-bl-full pointer-events-none -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-amber-100 text-amber-900 border border-royal-gold">
+                  Day 2 &bull; Auspicious Ceremony
+                </span>
+                <span class="text-xs text-royal-maroon/90 font-bold">Nov 25, 2026</span>
+              </div>
+              <h3 class="font-serif text-2xl sm:text-3xl text-royal-maroon mb-2">Sumuhurtham</h3>
+              <p class="text-sm text-royal-maroon/80 leading-relaxed mb-4">
+                The sacred union solemnized at the auspicious moment with Vedic mantras, Jeelakarra-Bellam, Mangalsutra Dharana, and the sacred Saptapadi vows.
+              </p>
+              
+              <div class="space-y-2 text-xs sm:text-sm text-royal-maroon/90 border-t border-royal-gold/20 pt-4">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="clock" class="w-4 h-4 text-royal-gold-dark"></i>
+                  <span><strong>Muhurtham: 09:32 PM IST</strong></span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i data-lucide="shirt" class="w-4 h-4 text-royal-gold-dark"></i>
+                  <span>Dress Code: Traditional Indian Silks, Kanjeevarams &amp; Kurta-Pajamas</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i data-lucide="map-pin" class="w-4 h-4 text-royal-gold-dark"></i>
+                  <span>BRK Gardens, Rajamahendravaram</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-6 flex items-center justify-between pt-4 border-t border-royal-gold/15">
+              <button onclick="addToCalendar('Wedding Ceremony - Sumuhurtham', '2026-11-25T21:32:00', '2026-11-26T02:00:00', 'BRK Gardens, Rajamahendravaram', 'Sacred Wedding Sumuhurtham of Vivek weds Mahi at 09:32 PM')" class="text-xs font-serif uppercase tracking-wider text-royal-gold-dark hover:text-royal-maroon flex items-center gap-1 font-semibold">
+                <i data-lucide="calendar-plus" class="w-4 h-4"></i> Add to Calendar
+              </button>
+            </div>
+          </div>
+
+          <!-- Event 3: Satyanarayana Swamy Puja -->
+          <div class="bg-cream-50 rounded-2xl border border-royal-gold/30 p-6 sm:p-8 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-28 h-28 bg-emerald-100/40 rounded-bl-full pointer-events-none -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-100 text-emerald-900 border border-emerald-300">
+                  Day 3 &bull; Morning Puja
+                </span>
+                <span class="text-xs text-royal-maroon/70 font-semibold">Nov 26, 2026</span>
+              </div>
+              <h3 class="font-serif text-2xl sm:text-3xl text-royal-maroon mb-2">Sri Satyanarayana Swamy Puja</h3>
+              <p class="text-sm text-royal-maroon/80 leading-relaxed mb-4">
+                A sanctified Vedic ritual to invoke the divine blessings of Lord Sri Satyanarayana Swamy (an incarnation of Lord Maha Vishnu) for eternal harmony, health, abundance, and righteous prosperity in the newly married couple's shared life.
+              </p>
+              
+              <div class="space-y-2 text-xs sm:text-sm text-royal-maroon/90 border-t border-royal-gold/20 pt-4">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="clock" class="w-4 h-4 text-royal-gold-dark"></i>
+                  <span>08:30 AM onwards</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i data-lucide="shirt" class="w-4 h-4 text-royal-gold-dark"></i>
+                  <span>Dress Code: Traditional Attire</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i data-lucide="home" class="w-4 h-4 text-royal-gold-dark"></i>
+                  <span>Groom's Home</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-6 flex items-center justify-between pt-4 border-t border-royal-gold/15">
+              <button onclick="addToCalendar('Sri Satyanarayana Swamy Puja', '2026-11-26T08:30:00', '2026-11-26T12:00:00', 'Groom\'s Home', 'Sri Satyanarayana Swamy Vratham for Vivek & Mahi')" class="text-xs font-serif uppercase tracking-wider text-royal-gold-dark hover:text-royal-maroon flex items-center gap-1">
+                <i data-lucide="calendar-plus" class="w-4 h-4"></i> Add to Calendar
+              </button>
+            </div>
+          </div>
+
+          <!-- Event 4: The Royal Reception -->
+          <div class="bg-cream-50 rounded-2xl border border-royal-gold/30 p-6 sm:p-8 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-28 h-28 bg-rose-100/50 rounded-bl-full pointer-events-none -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-rose-100 text-rose-900 border border-rose-300">
+                  Day 3 &bull; Evening Banquet
+                </span>
+                <span class="text-xs text-royal-maroon/70 font-semibold">Nov 26, 2026</span>
+              </div>
+              <h3 class="font-serif text-2xl sm:text-3xl text-royal-maroon mb-2">The Royal Reception</h3>
+              <p class="text-sm text-royal-maroon/80 leading-relaxed mb-4">
+                An evening of celebratory feasting, joyful music, photographs, and grand fellowship to toast the newly wedded couple.
+              </p>
+              
+              <div class="space-y-2 text-xs sm:text-sm text-royal-maroon/90 border-t border-royal-gold/20 pt-4">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="clock" class="w-4 h-4 text-royal-gold-dark"></i>
+                  <span>07:00 PM onwards</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i data-lucide="shirt" class="w-4 h-4 text-royal-gold-dark"></i>
+                  <span>Dress Code: Formal or Traditional Attire</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i data-lucide="map-pin" class="w-4 h-4 text-royal-gold-dark"></i>
+                  <span>Alanati Banquets | Puppalaguda, Hyderabad</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-6 flex items-center justify-between pt-4 border-t border-royal-gold/15">
+              <button onclick="addToCalendar('Wedding Reception', '2026-11-26T19:00:00', '2026-11-26T23:30:00', 'Alanati Banquets, Puppalaguda, Hyderabad', 'Royal Reception celebration of Vivek weds Mahi')" class="text-xs font-serif uppercase tracking-wider text-royal-gold-dark hover:text-royal-maroon flex items-center gap-1">
+                <i data-lucide="calendar-plus" class="w-4 h-4"></i> Add to Calendar
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: VENUES & DESTINATIONS -->
+    <section class="py-16 px-4 max-w-6xl mx-auto">
+      <div class="text-center mb-12">
+        <span class="text-xs uppercase tracking-[0.25em] text-royal-gold-dark font-semibold">Directions &amp; Venues</span>
+        <h2 class="font-serif text-4xl sm:text-5xl text-royal-maroon mt-1">The Destinations</h2>
+        <p class="text-sm text-royal-maroon/70 mt-2">Find directions and locations for both our Wedding Ceremony and Grand Reception</p>
+        <div class="w-16 h-0.5 bg-royal-gold mx-auto mt-3"></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- Destination 1: Wedding Hall -->
+        <div class="bg-cream-50 rounded-2xl border-2 border-royal-gold/50 shadow-royal overflow-hidden flex flex-col justify-between">
+          <div class="p-6 sm:p-8 space-y-4">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-royal-gold/40 text-xs font-semibold uppercase tracking-wider">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Wedding Hall
+            </div>
+            <h3 class="font-serif text-2xl sm:text-3xl text-royal-maroon">BRK Gardens</h3>
+            <p class="text-sm text-royal-maroon/80 leading-relaxed">
+              Host of our sacred Sumuhurtham wedding ceremony on Wednesday, November 25, 2026.
+            </p>
+            <div class="space-y-2 text-sm text-royal-maroon/90 pt-2">
+              <div class="flex items-start gap-2.5">
+                <i data-lucide="map-pin" class="w-4 h-4 text-royal-gold-dark shrink-0 mt-1"></i>
+                <span>BRK Gardens, Rajamahendravaram, Andhra Pradesh, India</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 pt-0 border-t border-royal-gold/20 flex flex-col sm:flex-row gap-3">
+            <a href="https://maps.app.goo.gl/wxZYRsidaE7Fo8Po8" target="_blank" rel="noopener noreferrer" class="w-full text-center px-4 py-3 bg-royal-maroon text-cream-50 rounded-xl hover:bg-royal-maroon-dark transition duration-300 text-xs font-serif uppercase tracking-wider flex items-center justify-center gap-2 shadow">
+              <i data-lucide="navigation" class="w-4 h-4"></i>
+              <span>Open in Google Maps</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Destination 2: Reception Venue -->
+        <div class="bg-cream-50 rounded-2xl border-2 border-royal-gold/50 shadow-royal overflow-hidden flex flex-col justify-between">
+          <div class="p-6 sm:p-8 space-y-4">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-100 text-rose-900 border border-rose-300 text-xs font-semibold uppercase tracking-wider">
+              <i data-lucide="party-popper" class="w-3.5 h-3.5"></i> Reception Venue
+            </div>
+            <h3 class="font-serif text-2xl sm:text-3xl text-royal-maroon">Alanati Banquets</h3>
+            <p class="text-sm text-royal-maroon/80 leading-relaxed">
+              Host of our joyous Grand Reception celebration on Thursday, November 26, 2026.
+            </p>
+            <div class="space-y-2 text-sm text-royal-maroon/90 pt-2">
+              <div class="flex items-start gap-2.5">
+                <i data-lucide="map-pin" class="w-4 h-4 text-royal-gold-dark shrink-0 mt-1"></i>
+                <span>Alanati Banquets, Puppalaguda, Hyderabad, Telangana, India</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 pt-0 border-t border-royal-gold/20 flex flex-col sm:flex-row gap-3">
+            <a href="https://maps.app.goo.gl/iX85SVKKJbxCckgb9" target="_blank" rel="noopener noreferrer" class="w-full text-center px-4 py-3 bg-royal-maroon text-cream-50 rounded-xl hover:bg-royal-maroon-dark transition duration-300 text-xs font-serif uppercase tracking-wider flex items-center justify-center gap-2 shadow">
+              <i data-lucide="navigation" class="w-4 h-4"></i>
+              <span>Open in Google Maps</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Combined Calendar Export -->
+      <div class="mt-8 text-center">
+        <button onclick="downloadAllEventsICS()" class="inline-flex items-center gap-2 px-6 py-3 border border-royal-gold text-royal-maroon bg-cream-50 hover:bg-royal-gold/20 rounded-xl transition duration-300 text-xs font-serif uppercase tracking-wider shadow">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>Download All Events (.ICS)</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- SECTION: BLESSING FOOTER & HOST NOTE -->
+    <footer class="py-16 px-4 text-center border-t border-royal-gold/30 bg-cream-100">
+      <div class="max-w-2xl mx-auto space-y-6">
+        <div class="w-12 h-12 rounded-full border border-royal-gold mx-auto flex items-center justify-center text-royal-gold text-sm font-display">
+          V &amp; M
+        </div>
+
+        <p class="font-serif italic text-2xl text-royal-maroon">
+          "Together with our families, we seek your presence and blessings as we begin this sacred new journey."
+        </p>
+
+        <div class="text-xs uppercase tracking-[0.25em] text-royal-gold-dark font-medium space-y-1">
+          <p>Cordially Invited By:</p>
+          <p class="text-royal-maroon font-semibold">The Families of Vivek &amp; Mahi</p>
+        </div>
+
+        <div class="pt-6">
+          <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="text-xs font-serif uppercase tracking-widest text-royal-maroon/60 hover:text-royal-maroon flex items-center justify-center gap-1 mx-auto">
+            <i data-lucide="arrow-up" class="w-3.5 h-3.5"></i> Back to Top
+          </button>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- INTERACTIVE RSVP MODAL (SIMPLIFIED: NO PHONE OR EMAIL) -->
+  <div id="rsvpModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+    <div class="relative w-full max-w-lg bg-cream-50 border-2 border-royal-gold rounded-2xl p-6 sm:p-8 shadow-2xl my-8">
+      
+      <!-- Close button -->
+      <button onclick="closeRsvpModal()" class="absolute top-4 right-4 text-royal-maroon/60 hover:text-royal-maroon p-1">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <div class="text-center mb-6">
+        <span class="text-xs uppercase tracking-widest text-royal-gold-dark font-semibold">Will You Join Us?</span>
+        <h3 class="font-serif text-3xl text-royal-maroon">Kindly RSVP</h3>
+        <p class="text-xs text-royal-maroon/70 mt-1">Please confirm your attendance with us</p>
+      </div>
+
+      <form id="rsvpForm" onsubmit="handleRsvpSubmit(event)" class="space-y-4">
+        <!-- Full Name -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-royal-maroon mb-1">Your Name / Family Name *</label>
+          <input type="text" id="rsvpName" required placeholder="Full Name or Family Name" class="w-full px-4 py-2.5 rounded-xl border border-royal-gold/30 bg-white focus:outline-none focus:ring-2 focus:ring-royal-gold text-sm" />
+        </div>
+
+        <!-- Attendance decision -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-royal-maroon mb-1">Will you attend? *</label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="flex items-center gap-2 p-3 border border-royal-gold/30 rounded-xl bg-white cursor-pointer hover:border-royal-gold">
+              <input type="radio" name="attendanceStatus" value="attending" checked class="text-royal-maroon focus:ring-royal-gold" />
+              <span class="text-xs sm:text-sm font-medium text-royal-maroon">Joyfully Accepts</span>
+            </label>
+            <label class="flex items-center gap-2 p-3 border border-royal-gold/30 rounded-xl bg-white cursor-pointer hover:border-royal-gold">
+              <input type="radio" name="attendanceStatus" value="declining" class="text-royal-maroon focus:ring-royal-gold" />
+              <span class="text-xs sm:text-sm font-medium text-royal-maroon">Regretfully Declines</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Number of Guests -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-royal-maroon mb-1">Total Guests Attending</label>
+          <select id="rsvpGuestCount" class="w-full px-4 py-2.5 rounded-xl border border-royal-gold/30 bg-white focus:outline-none focus:ring-2 focus:ring-royal-gold text-sm">
+            <option value="1">1 Person</option>
+            <option value="2" selected>2 Persons</option>
+            <option value="3">3 Persons</option>
+            <option value="4">4 Persons</option>
+            <option value="5+">5+ Persons (Family)</option>
+          </select>
+        </div>
+
+        <!-- Events Attending -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-royal-maroon mb-1.5">Events Attending</label>
+          <div class="space-y-1.5 text-xs text-royal-maroon">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="eventHaldi" checked class="rounded border-royal-gold text-royal-maroon focus:ring-royal-gold" />
+              <span>Haldi &amp; Pelli Koduku (Nov 22 Morning)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="eventMuhurtham" checked class="rounded border-royal-gold text-royal-maroon focus:ring-royal-gold" />
+              <span>Sumuhurtham Wedding (Nov 25, 09:32 PM)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="eventPuja" checked class="rounded border-royal-gold text-royal-maroon focus:ring-royal-gold" />
+              <span>Sri Satyanarayana Swamy Puja (Nov 26 Morning)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="eventReception" checked class="rounded border-royal-gold text-royal-maroon focus:ring-royal-gold" />
+              <span>The Royal Reception (Nov 26 Evening)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Dietary Preferences / Notes -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-royal-maroon mb-1">Special Message / Note</label>
+          <input type="text" id="rsvpDiet" placeholder="e.g., Pure Veg, Looking forward to celebrating!" class="w-full px-4 py-2.5 rounded-xl border border-royal-gold/30 bg-white focus:outline-none focus:ring-2 focus:ring-royal-gold text-sm" />
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" class="w-full py-3 bg-gradient-to-r from-royal-maroon to-royal-maroon-dark text-cream-50 font-serif text-sm uppercase tracking-widest rounded-xl hover:shadow-lg transition">
+            Submit RSVP
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-32 opacity-0 transition-all duration-500 max-w-sm bg-cream-50 border-2 border-royal-gold text-royal-maroon px-5 py-4 rounded-xl shadow-2xl flex items-center gap-3">
+    <div id="toastIcon" class="w-8 h-8 rounded-full bg-royal-gold/20 flex items-center justify-center shrink-0 text-royal-gold-dark">
+      <i data-lucide="check" class="w-5 h-5"></i>
+    </div>
+    <div>
+      <h5 id="toastTitle" class="font-serif font-bold text-sm">RSVP Received!</h5>
+      <p id="toastMessage" class="text-xs text-royal-maroon/80">Thank you for confirming your presence.</p>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Initialize Lucide Icons
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      initCountdown();
+      initPetalCanvas();
+    });
+
+    /* ==========================================================
+       1. ENVELOPE MODAL OPENING
+       ========================================================== */
+    function openEnvelope() {
+      // Trigger festive golden confetti
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#D4AF37', '#68131D', '#F3E5AB', '#ffffff']
+        });
+      }
+
+      // Play soft chime sound note
+      playChime();
+
+      // Start gentle background music synthesis
+      startAmbientMusic();
+
+      // Animate envelope fade out
+      const envelope = document.getElementById('envelopeModal');
+      const card = document.getElementById('envelopeCard');
+      card.style.transform = 'scale(0.8) rotate(-3deg)';
+      card.style.opacity = '0';
+      envelope.style.opacity = '0';
+      setTimeout(() => {
+        envelope.classList.add('hidden');
+      }, 700);
+    }
+
+    /* ==========================================================
+       2. COUNTDOWN TIMER LOGIC
+       Target Date: November 25, 2026, 09:32:00 PM IST (21:32:00 IST / UTC+05:30)
+       ========================================================== */
+    function initCountdown() {
+      const weddingDate = new Date("2026-11-25T21:32:00+05:30").getTime();
+
+      function updateTimer() {
+        const now = new Date().getTime();
+        const difference = weddingDate - now;
+
+        if (difference > 0) {
+          const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+          document.getElementById('days').innerText = String(days).padStart(2, '0');
+          document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+          document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+          document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        } else {
+          document.getElementById('days').innerText = "00";
+          document.getElementById('hours').innerText = "00";
+          document.getElementById('minutes').innerText = "00";
+          document.getElementById('seconds').innerText = "00";
+        }
+      }
+
+      updateTimer();
+      setInterval(updateTimer, 1000);
+    }
+
+    /* ==========================================================
+       3. AMBIENT TRADITIONAL INSTRUMENTAL WEB AUDIO SYNTHESIZER
+       ========================================================== */
+    let audioCtx = null;
+    let isPlaying = false;
+    let musicInterval = null;
+    let droneOscillators = [];
+
+    function toggleAudio() {
+      if (isPlaying) {
+        stopAmbientMusic();
+      } else {
+        startAmbientMusic();
+      }
+    }
+
+    function initAudioContext() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playChime() {
+      try {
+        initAudioContext();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.5); // A5
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 1.2);
+      } catch (e) {
+        console.error("Audio error", e);
+      }
+    }
+
+    function startAmbientMusic() {
+      try {
+        initAudioContext();
+        isPlaying = true;
+        updateMusicUI(true);
+
+        const rootFreqs = [146.83, 220.00, 293.66]; // D3, A3, D4
+        droneOscillators = [];
+
+        const masterGain = audioCtx.createGain();
+        masterGain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        masterGain.connect(audioCtx.destination);
+
+        rootFreqs.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = idx === 0 ? 'sine' : 'triangle';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.15 / (idx + 1), audioCtx.currentTime);
+          osc.connect(gain);
+          gain.connect(masterGain);
+          osc.start();
+          droneOscillators.push(osc);
+        });
+
+        const melodyPitches = [293.66, 329.63, 369.99, 440.00, 493.88, 554.37, 587.33];
+
+        musicInterval = setInterval(() => {
+          if (!isPlaying || !audioCtx) return;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          const randomFreq = melodyPitches[Math.floor(Math.random() * melodyPitches.length)];
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(randomFreq, audioCtx.currentTime);
+
+          gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 0.4);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.2);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start();
+          osc.stop(audioCtx.currentTime + 2.3);
+        }, 1800);
+
+      } catch (err) {
+        console.warn("Autoplay audio handled or blocked by policy", err);
+      }
+    }
+
+    function stopAmbientMusic() {
+      isPlaying = false;
+      updateMusicUI(false);
+      if (musicInterval) {
+        clearInterval(musicInterval);
+        musicInterval = null;
+      }
+      droneOscillators.forEach(osc => {
+        try { osc.stop(); } catch(e){}
+      });
+      droneOscillators = [];
+    }
+
+    function updateMusicUI(active) {
+      const musicText = document.getElementById('musicText');
+      const musicIconWrapper = document.getElementById('musicIconWrapper');
+      const soundBars = document.getElementById('soundBars');
+
+      if (active) {
+        musicText.innerText = "Music: On";
+        musicIconWrapper.innerHTML = '<i data-lucide="volume-2" class="w-4 h-4"></i>';
+        soundBars.classList.remove('hidden');
+      } else {
+        musicText.innerText = "Music: Off";
+        musicIconWrapper.innerHTML = '<i data-lucide="volume-x" class="w-4 h-4"></i>';
+        soundBars.classList.add('hidden');
+      }
+      lucide.createIcons();
+    }
+
+    /* ==========================================================
+       4. FLOATING PETALS & SPARKLES CANVAS
+       ========================================================== */
+    function initPetalCanvas() {
+      const canvas = document.getElementById('petalCanvas');
+      const ctx = canvas.getContext('2d');
+      let width = canvas.width = window.innerWidth;
+      let height = canvas.height = window.innerHeight;
+
+      window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      });
+
+      const petals = [];
+      const colors = ['rgba(212, 175, 55, 0.4)', 'rgba(236, 200, 117, 0.5)', 'rgba(230, 115, 130, 0.35)', 'rgba(255, 230, 180, 0.4)'];
+
+      for (let i = 0; i < 28; i++) {
+        petals.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          size: Math.random() * 7 + 4,
+          speedY: Math.random() * 0.7 + 0.3,
+          speedX: Math.random() * 0.6 - 0.3,
+          angle: Math.random() * Math.PI * 2,
+          rotationSpeed: (Math.random() - 0.5) * 0.02,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+
+        petals.forEach(p => {
+          p.y += p.speedY;
+          p.x += Math.sin(p.angle) * 0.4;
+          p.angle += p.rotationSpeed;
+
+          if (p.y > height + 20) {
+            p.y = -10;
+            p.x = Math.random() * width;
+          }
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.angle);
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.size, p.size / 2, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+
+    /* ==========================================================
+       5. RSVP MODAL & LOCAL STORAGE HANDLING
+       ========================================================== */
+    function openRsvpModal() {
+      const modal = document.getElementById('rsvpModal');
+      modal.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
+    }
+
+    function closeRsvpModal() {
+      const modal = document.getElementById('rsvpModal');
+      modal.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    }
+
+    function handleRsvpSubmit(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('rsvpName').value.trim();
+      const attendance = document.querySelector('input[name="attendanceStatus"]:checked').value;
+      const guests = document.getElementById('rsvpGuestCount').value;
+      const diet = document.getElementById('rsvpDiet').value.trim();
+
+      const events = {
+        haldi: document.getElementById('eventHaldi').checked,
+        muhurtham: document.getElementById('eventMuhurtham').checked,
+        puja: document.getElementById('eventPuja').checked,
+        reception: document.getElementById('eventReception').checked,
+      };
+
+      const rsvpData = {
+        name,
+        attendance,
+        guests,
+        diet,
+        events,
+        submittedAt: new Date().toISOString()
+      };
+
+      const existing = JSON.parse(localStorage.getItem('wedding_rsvps') || '[]');
+      existing.push(rsvpData);
+      localStorage.setItem('wedding_rsvps', JSON.stringify(existing));
+
+      closeRsvpModal();
+      document.getElementById('rsvpForm').reset();
+
+      if (attendance === 'attending' && typeof confetti === 'function') {
+        confetti({
+          particleCount: 100,
+          spread: 80,
+          origin: { y: 0.5 },
+          colors: ['#D4AF37', '#68131D', '#F3E5AB']
+        });
+      }
+
+      showToast("RSVP Confirmed!", `Thank you ${name}. Your response has been recorded with warm love.`);
+    }
+
+    /* ==========================================================
+       6. ADD TO CALENDAR / ICS GENERATION
+       ========================================================== */
+    function addToCalendar(title, startISO, endISO, location, description) {
+      const start = new Date(startISO).toISOString().replace(/-|:|\.\d\d\d/g, "");
+      const end = new Date(endISO).toISOString().replace(/-|:|\.\d\d\d/g, "");
+
+      const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Vivek weds Mahi — ' + title)}&dates=${start}/${end}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(location)}`;
+      window.open(gcalUrl, '_blank');
+    }
+
+    function downloadAllEventsICS() {
+      const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Vivek weds Mahi Wedding Invitation//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+SUMMARY:Vivek weds Mahi — Haldi & Pelli Koduku
+DESCRIPTION:Traditional Haldi and Pelli Koduku ceremony.
+LOCATION:Groom's Home
+DTSTART:20261122T013000Z
+DTEND:20261122T053000Z
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Vivek weds Mahi — Sumuhurtham (Wedding Ceremony)
+DESCRIPTION:Sacred Sumuhurtham at 09:32 PM IST.
+LOCATION:BRK Gardens, Rajamahendravaram
+DTSTART:20261125T160200Z
+DTEND:20261125T203000Z
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Vivek weds Mahi — Sri Satyanarayana Swamy Puja
+DESCRIPTION:Sacred Satyanarayana Swamy Puja seeking divine blessings.
+LOCATION:Groom's Home
+DTSTART:20261126T030000Z
+DTEND:20261126T063000Z
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Vivek weds Mahi — The Royal Reception
+DESCRIPTION:Royal Reception dinner celebrations.
+LOCATION:Alanati Banquets, Puppalaguda, Hyderabad
+DTSTART:20261126T133000Z
+DTEND:20261126T180000Z
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR`;
+
+      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.setAttribute('download', 'Vivek_weds_Mahi_Wedding.ics');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast("Calendar Downloaded", "The .ICS file has been saved to your device.");
+    }
+
+    /* ==========================================================
+       7. UTILITY HELPERS: SMOOTH SCROLL & TOAST
+       ========================================================== */
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function showToast(title, message) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastTitle').innerText = title;
+      document.getElementById('toastMessage').innerText = message;
+
+      toast.classList.remove('translate-y-32', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-32', 'opacity-0');
+      }, 4000);
+    }
+  </script>
+</body>
+</html>
